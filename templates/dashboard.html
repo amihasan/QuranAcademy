@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Welcome, {{ session.full_name }}! 🎓</h1>
+            <p>Track your progress and manage your enrollments</p>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-info">
+                    <h3>{{ enrollments|length }}</h3>
+                    <p>Active Courses</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3>{{ enrollments|selectattr('status', 'equalto', 'active')|list|length }}</h3>
+                    <p>Courses In Progress</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-info">
+                    <h3>{{ enrollments|selectattr('status', 'equalto', 'completed')|list|length }}</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <h2>My Enrollments</h2>
+            {% if enrollments %}
+                <div class="enrollments-grid">
+                    {% for enrollment in enrollments %}
+                    <div class="enrollment-card">
+                        <div class="enrollment-header">
+                            <div class="course-picture-small">
+                                <img src="{{ enrollment.course.icon }}" alt="{{ enrollment.course.name }}" class="course-picture-img-small">
+                            </div>
+                            <h3>{{ enrollment.course.name }}</h3>
+                        </div>
+                        <div class="enrollment-body">
+                            <p class="enrollment-date">Enrolled: {{ enrollment.enrollment_date.strftime('%B %d, %Y') }}</p>
+                            <div class="enrollment-status">
+                                <span class="badge badge-{{ enrollment.status }}">{{ enrollment.status|title }}</span>
+                                <span class="badge badge-{{ enrollment.payment_status }}">
+                                    {{ enrollment.payment_status|title }}
+                                </span>
+                            </div>
+                            {% if enrollment.payment_status == 'unpaid' %}
+                                <a href="{{ url_for('payment', enrollment_id=enrollment.id) }}" class="btn btn-small btn-accent">Pay Now</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📖</div>
+                    <h3>No Enrollments Yet</h3>
+                    <p>Start your Quranic journey by enrolling in a course!</p>
+                    <a href="{{ url_for('courses') }}" class="btn btn-primary">Browse Courses</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

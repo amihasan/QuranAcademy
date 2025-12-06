@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  
+  <!-- Outer decorative circle -->
+  <circle cx="250" cy="250" r="180" fill="none" stroke="#2b7a7a" stroke-width="8"/>
+  
+  <!-- Inner pointed arch frame -->
+  <path d="M 250 80 Q 210 120, 180 180 Q 150 240, 150 300 Q 150 360, 180 400 Q 210 440, 250 470 Q 290 440, 320 400 Q 350 360, 350 300 Q 350 240, 320 180 Q 290 120, 250 80 Z" 
+        fill="none" stroke="#2b7a7a" stroke-width="6"/>
+  
+  <!-- Large water droplet with golden outline -->
+  <path d="M 250 130 Q 230 150, 220 175 Q 210 200, 210 225 Q 210 260, 230 280 Q 245 295, 250 295 Q 255 295, 270 280 Q 290 260, 290 225 Q 290 200, 280 175 Q 270 150, 250 130 Z" 
+        fill="#2b7a7a" stroke="#d4af37" stroke-width="4"/>
+  
+  <!-- Inner droplet detail (cream/light curve) -->
+  <path d="M 250 145 Q 235 160, 228 180 Q 225 195, 228 210 Q 232 225, 240 235" 
+        fill="none" stroke="#e8ddb5" stroke-width="3" opacity="0.7"/>
+  
+  <!-- Decorative swirl inside droplet -->
+  <path d="M 250 180 Q 245 190, 245 200 Q 245 210, 250 215 Q 255 220, 260 220 Q 265 220, 268 215" 
+        fill="none" stroke="#e8ddb5" stroke-width="2.5"/>
+  
+  <!-- Open book at bottom with golden pages -->
+  <g transform="translate(250, 340)">
+    <!-- Left page -->
+    <path d="M -60 -20 Q -60 -25, -55 -28 L -10 -28 Q 0 -28, 0 -20 L 0 20 Q 0 25, -5 25 L -55 25 Q -60 25, -60 20 Z" 
+          fill="none" stroke="#d4af37" stroke-width="3"/>
+    <!-- Right page -->
+    <path d="M 0 -20 Q 0 -28, 10 -28 L 55 -28 Q 60 -25, 60 -20 L 60 20 Q 60 25, 55 25 L 5 25 Q 0 25, 0 20 Z" 
+          fill="none" stroke="#d4af37" stroke-width="3"/>
+    <!-- Book spine -->
+    <line x1="0" y1="-28" x2="0" y2="25" stroke="#d4af37" stroke-width="4"/>
+    <!-- Page curves -->
+    <path d="M -50 -18 Q -25 -15, 0 -15" fill="none" stroke="#d4af37" stroke-width="1.5" opacity="0.6"/>
+    <path d="M 0 -15 Q 25 -15, 50 -18" fill="none" stroke="#d4af37" stroke-width="1.5" opacity="0.6"/>
+  </g>
+  
+  <!-- Left decorative curve (cream) -->
+  <path d="M 140 340 Q 130 350, 135 365 Q 145 380, 165 385" 
+        fill="none" stroke="#e8ddb5" stroke-width="4"/>
+  
+  <!-- Right decorative curve (cream) -->
+  <path d="M 360 340 Q 370 350, 365 365 Q 355 380, 335 385" 
+        fill="none" stroke="#e8ddb5" stroke-width="4"/>
+  
+  <!-- Text -->
+  <text x="250" y="440" font-family="'Arial', sans-serif" font-size="24" font-weight="bold" 
+        fill="#2b7a7a" text-anchor="middle" letter-spacing="2">RAINDROPS</text>
+  <text x="250" y="465" font-family="'Arial', sans-serif" font-size="20" font-weight="normal" 
+        fill="#2b7a7a" text-anchor="middle" letter-spacing="1">ACADEMY</text>
+</svg>

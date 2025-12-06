@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Payment - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="payment-section">
+    <div class="container">
+        <div class="payment-container">
+            <div class="payment-card">
+                <div class="payment-header">
+                    <h2>Complete Your Payment</h2>
+                    <p>Secure your spot in {{ enrollment.course.name }}</p>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-item">
+                        <span>Course:</span>
+                        <strong>{{ enrollment.course.name }}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Duration:</span>
+                        <strong>{{ enrollment.course.duration }}</strong>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Amount Due:</span>
+                        <strong class="price-large">${{ "%.2f"|format(enrollment.course.tuition_fee) }}</strong>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('payment', enrollment_id=enrollment.id) }}" class="payment-form">
+                    <h3>Payment Method</h3>
+                    
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Credit Card" checked>
+                            <div class="option-content">
+                                <span class="option-icon">💳</span>
+                                <span class="option-text">Credit Card</span>
+                            </div>
+                        </label>
+                        
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Debit Card">
+                            <div class="option-content">
+                                <span class="option-icon">💳</span>
+                                <span class="option-text">Debit Card</span>
+                            </div>
+                        </label>
+                        
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="PayPal">
+                            <div class="option-content">
+                                <span class="option-icon">📱</span>
+                                <span class="option-text">PayPal</span>
+                            </div>
+                        </label>
+                        
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Bank Transfer">
+                            <div class="option-content">
+                                <span class="option-icon">🏦</span>
+                                <span class="option-text">Bank Transfer</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-note">
+                        <p>🔒 Your payment information is secure and encrypted. This is a demo payment system.</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-block btn-accent btn-large">Pay ${{ "%.2f"|format(enrollment.course.tuition_fee) }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

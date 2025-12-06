@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Reports - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>📊 Payment Reports</h1>
+            <p>Monitor student payments and send reminders for monthly tuition fees.</p>
+            <div style="margin-top: 1rem;">
+                <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">← Back to Course Management</a>
+            </div>
+        </div>
+        
+        <div class="reports-stats">
+            {% set total_students = report_data|length %}
+            {% set overdue_count = report_data|selectattr('is_overdue')|list|length %}
+            {% set due_soon = report_data|selectattr('days_until_due', 'le', 7)|rejectattr('is_overdue')|list|length %}
+            
+            <div class="stat-card stat-total">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3>{{ total_students }}</h3>
+                    <p>Active Students</p>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-overdue">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <h3>{{ overdue_count }}</h3>
+                    <p>Overdue Payments</p>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-due-soon">
+                <div class="stat-icon">⏰</div>
+                <div class="stat-info">
+                    <h3>{{ due_soon }}</h3>
+                    <p>Due Within 7 Days</p>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-revenue">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3>${{ "%.2f"|format(report_data|sum(attribute='monthly_fee')) }}</h3>
+                    <p>Monthly Revenue</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reports-table-container">
+            <h2>Student Payment Details</h2>
+            
+            {% if report_data %}
+            <div class="table-responsive">
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Monthly Fee</th>
+                            <th>Last Payment</th>
+                            <th>Next Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in report_data %}
+                        <tr class="{% if item.is_overdue %}row-overdue{% elif item.days_until_due and item.days_until_due <= 7 %}row-warning{% endif %}">
+                            <td>
+                                <strong>{{ item.user.full_name }}</strong><br>
+                                <small>{{ item.user.email }}</small><br>
+                                <small>{{ item.user.phone or 'No phone' }}</small>
+                            </td>
+                            <td>{{ item.course.name }}</td>
+                            <td class="amount">${{ "%.2f"|format(item.monthly_fee) }}</td>
+                            <td>
+                                {% if item.enrollment.last_payment_date %}
+                                    {{ item.enrollment.last_payment_date.strftime('%b %d, %Y') }}
+                                {% else %}
+                                    <span class="text-muted">No payment yet</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.enrollment.next_payment_due %}
+                                    {{ item.enrollment.next_payment_due.strftime('%b %d, %Y') }}
+                                {% else %}
+                                    <span class="text-muted">Not set</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.is_overdue %}
+                                    <span class="badge badge-danger">OVERDUE ({{ item.overdue_days }} days)</span>
+                                {% elif item.days_until_due is not none %}
+                                    {% if item.days_until_due == 0 %}
+                                        <span class="badge badge-warning">DUE TODAY</span>
+                                    {% elif item.days_until_due <= 7 %}
+                                        <span class="badge badge-warning">Due in {{ item.days_until_due }} days</span>
+                                    {% else %}
+                                        <span class="badge badge-success">Due in {{ item.days_until_due }} days</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-secondary">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('send_payment_reminder', enrollment_id=item.enrollment.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-small btn-primary" 
+                                            onclick="return confirm('Send payment reminder to {{ item.user.full_name }}?');">
+                                        📧 Send Reminder
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No active student enrollments found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

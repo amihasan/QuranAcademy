@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Founder's Message - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Founder's Message</h1>
+        <p>A Vision for Islamic Education</p>
+    </div>
+</section>
+
+<section class="founder-section">
+    <div class="container">
+        <div class="founder-container">
+            <div class="founder-image-card">
+                <div class="founder-image-wrapper">
+                    <img src="{{ url_for('static', filename='images/founder/profile.jpg') }}" alt="Shaykh Mahmudul Hasan" class="founder-image" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop'">
+                </div>
+                <div class="founder-credentials">
+                    <h3>Shaykh Mahmudul Hasan</h3>
+                    <p class="founder-title">Founder & Chief Educator</p>
+                    <div class="credentials-list">
+                        <p>📚 Islamic Scholar</p>
+                        <p>🎓 Quran & Hadith Specialist</p>
+                        <p>🕌 Community Leader</p>
+                        <p>✍️ Author & Speaker</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="founder-message-content">
+                <div class="message-card">
+                    <h2>Assalamu Alaikum wa Rahmatullahi wa Barakatuh</h2>
+                    
+                    <div class="message-text">
+                        <p class="lead-text">
+                            Dear Brothers and Sisters in Faith,
+                        </p>
+                        
+                        <p>
+                            It is with immense gratitude to Allah (SWT) that I welcome you to Raindrops Academy, an institution born from a deep commitment to making authentic Islamic education accessible to every Muslim, regardless of their location or circumstances.
+                        </p>
+                        
+                        <h3>Our Vision</h3>
+                        <p>
+                            The Prophet Muhammad (peace be upon him) said: <em>"The seeking of knowledge is obligatory for every Muslim."</em> (Ibn Majah). In today's fast-paced world, many of our brothers and sisters struggle to find the time and resources to fulfill this sacred duty. Raindrops Academy was established to bridge this gap.
+                        </p>
+                        
+                        <p>
+                            Just as raindrops nourish the earth, bringing life to barren lands, we aspire to nourish hearts and minds with the knowledge of the Quran and the teachings of our beloved Prophet (peace be upon him). Each lesson, each recitation, each moment of understanding is a drop of mercy that revives the soul.
+                        </p>
+                        
+                        <h3>Our Commitment</h3>
+                        <p>
+                            At Raindrops Academy, we are committed to:
+                        </p>
+                        <ul class="commitment-list">
+                            <li><strong>Authentic Knowledge:</strong> Providing education rooted in the Quran and Sunnah, following the understanding of our righteous predecessors</li>
+                            <li><strong>Qualified Instructors:</strong> Working with scholars and teachers who possess both knowledge and the ability to convey it with wisdom and compassion</li>
+                            <li><strong>Personalized Learning:</strong> Recognizing that every student is unique, with different learning styles and paces</li>
+                            <li><strong>Holistic Development:</strong> Nurturing not just academic excellence, but spiritual growth and character development</li>
+                            <li><strong>Accessibility:</strong> Making quality Islamic education available to all, transcending geographical boundaries</li>
+                        </ul>
+                        
+                        <h3>A Personal Note</h3>
+                        <p>
+                            Throughout my journey in seeking knowledge, I have been blessed to study under esteemed scholars and serve communities around the world. This experience has shown me both the hunger for authentic Islamic education and the barriers that prevent many from accessing it.
+                        </p>
+                        
+                        <p>
+                            Raindrops Academy is not just an educational platform—it is a trust (amanah) that we bear together. Every student who learns a verse of the Quran, understands a principle of Tajweed, or grasps the wisdom of a Hadith is fulfilling a noble purpose. You are not just students; you are bearers of divine knowledge that will illuminate your life and the lives of those around you.
+                        </p>
+                        
+                        <h3>My Promise to You</h3>
+                        <p>
+                            I promise you that Raindrops Academy will always strive to maintain the highest standards of Islamic scholarship while remaining compassionate and supportive of your learning journey. We will create an environment where questions are welcomed, understanding is prioritized, and the love of Allah and His Messenger (peace be upon him) is nurtured.
+                        </p>
+                        
+                        <p class="closing-text">
+                            May Allah (SWT) accept this humble effort, purify our intentions, and make Raindrops Academy a means of guidance for many. May He bless you in your pursuit of knowledge and make it a source of light for you in this life and the Hereafter.
+                        </p>
+                        
+                        <div class="signature">
+                            <p class="signature-arabic">بارك الله فيكم</p>
+                            <p class="signature-name">Shaykh Mahmudul Hasan</p>
+                            <p class="signature-title">Founder & Chief Educator</p>
+                            <p class="signature-quote"><em>"And say: My Lord, increase me in knowledge" (Quran 20:114)</em></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message-cta">
+                    <h3>Begin Your Journey Today</h3>
+                    <p>Join thousands of students worldwide in deepening their understanding of Islam.</p>
+                    <div class="cta-buttons">
+                        <a href="{{ url_for('courses') }}" class="btn btn-accent btn-large">Explore Courses</a>
+                        <a href="{{ url_for('contact') }}" class="btn btn-secondary btn-large">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

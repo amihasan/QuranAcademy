@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Enroll - {{ course.name }} - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="enroll-section">
+    <div class="container">
+        <div class="enroll-container">
+            <div class="course-summary">
+                <div class="course-picture-hero">
+                    <img src="{{ course.icon }}" alt="{{ course.name }}" class="course-picture-img-hero">
+                </div>
+                <h1>{{ course.name }}</h1>
+                <p class="course-desc">{{ course.description }}</p>
+                
+                <div class="course-details">
+                    <div class="detail-item">
+                        <strong>Duration:</strong> {{ course.duration }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Monthly Fee:</strong> <span class="price-highlight">${{ "%.2f"|format(course.tuition_fee) }}</span>
+                    </div>
+                </div>
+
+                <div class="course-features-list">
+                    <h3>What's Included:</h3>
+                    <ul>
+                        {% for feature in course.features.split('|') %}
+                        <li>✓ {{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="enroll-form-card">
+                <h2>Confirm Enrollment</h2>
+                <p>You're about to enroll in <strong>{{ course.name }}</strong></p>
+                
+                <form method="POST" action="{{ url_for('enroll', course_id=course.id) }}">
+                    <div class="enrollment-summary">
+                        <div class="summary-row">
+                            <span>Course:</span>
+                            <strong>{{ course.name }}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Duration:</span>
+                            <strong>{{ course.duration }}</strong>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Monthly Tuition:</span>
+                            <strong>${{ "%.2f"|format(course.tuition_fee) }}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="enrollment-note">
+                        <p>📌 After enrollment, you'll be directed to the payment page to complete your registration.</p>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-block btn-accent">Confirm Enrollment</button>
+                    <a href="{{ url_for('courses') }}" class="btn btn-block btn-secondary">Back to Courses</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

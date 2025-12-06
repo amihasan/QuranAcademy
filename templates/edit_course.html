@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Course - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Edit Course</h1>
+            <p>Update course information and details.</p>
+        </div>
+        
+        <div class="admin-grid-single">
+            <div class="admin-card">
+                <form method="POST" enctype="multipart/form-data" class="admin-form">
+                    <div class="form-group">
+                        <label for="name">Course Name</label>
+                        <input id="name" name="name" class="form-control" value="{{ course.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="4" required>{{ course.description }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration</label>
+                        <input id="duration" name="duration" class="form-control" value="{{ course.duration }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tuition_fee">Monthly Tuition Fee (USD)</label>
+                        <input id="tuition_fee" name="tuition_fee" type="number" step="0.01" class="form-control" value="{{ course.tuition_fee }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Course Picture</label>
+                        <div class="current-icon-preview">
+                            <img src="{{ course.icon }}" alt="Current course picture" class="icon-preview-img">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="icon_file">Upload New Course Picture</label>
+                        <input id="icon_file" name="icon_file" type="file" class="form-control" accept=".png,.jpg,.jpeg,.gif,.svg,.webp">
+                        <small class="form-text">Upload a new picture to replace the current one. Accepted formats: PNG, JPG, GIF, SVG, WEBP (max 2MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="features">Features (one per line)</label>
+                        <textarea id="features" name="features" class="form-control" rows="4">{% if course.features %}{{ course.features.replace('|', '
+') }}{% endif %}</textarea>
+                    </div>
+                    <div class="button-group">
+                        <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-accent">Update Course</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
