@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Our Teachers - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="hero hero-small">
+    <div class="container">
+        <h1 class="hero-title">Meet Our Expert Teachers</h1>
+        <p class="hero-subtitle">Learn from qualified and experienced Islamic scholars</p>
+    </div>
+</section>
+
+<section class="teachers-section">
+    <div class="container">
+        <div class="section-intro">
+            <h2>Our Dedicated Faculty</h2>
+            <p>At Raindrops Academy, we take pride in our team of highly qualified Islamic teachers who are passionate about sharing their knowledge. Each teacher brings years of experience and expertise in their field.</p>
+        </div>
+
+        {% if teachers %}
+        <div class="teachers-grid">
+            {% for teacher in teachers %}
+            <div class="teacher-card">
+                <div class="teacher-card-header">
+                    <div class="teacher-avatar">
+                        {% if teacher.profile_picture %}
+                            <img src="{{ teacher.profile_picture }}" alt="{{ teacher.full_name }}">
+                        {% else %}
+                            <div class="avatar-placeholder">
+                                <span>{{ teacher.full_name[0] }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="teacher-header-info">
+                        <h3>{{ teacher.full_name }}</h3>
+                        {% if teacher.experience_years %}
+                        <p class="teacher-experience">{{ teacher.experience_years }}+ years of experience</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="teacher-card-body">
+                    {% if teacher.bio %}
+                    <p class="teacher-bio">{{ teacher.bio[:150] }}{% if teacher.bio|length > 150 %}...{% endif %}</p>
+                    {% endif %}
+
+                    {% if teacher.specializations %}
+                    <div class="teacher-specializations">
+                        <strong>Specializations:</strong>
+                        <div class="specialization-tags">
+                            {% for spec in teacher.specializations.split('|')[:3] %}
+                            <span class="tag">{{ spec }}</span>
+                            {% endfor %}
+                            {% if teacher.specializations.split('|')|length > 3 %}
+                            <span class="tag-more">+{{ teacher.specializations.split('|')|length - 3 }} more</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if teacher.languages %}
+                    <div class="teacher-languages">
+                        <strong>Languages:</strong> {{ teacher.languages }}
+                    </div>
+                    {% endif %}
+
+                    {% if teacher.teaching_courses %}
+                    <div class="teacher-courses">
+                        <strong>Teaching:</strong>
+                        {% for course in teacher.teaching_courses %}
+                            <span class="course-badge">{{ course.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="teacher-card-footer">
+                    <a href="{{ url_for('teacher_public_profile', teacher_id=teacher.id) }}" class="btn btn-primary btn-block">
+                        View Full Profile
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>We are currently building our team of expert teachers. Check back soon!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2>Ready to Start Learning?</h2>
+        <p>Join thousands of students learning Quran and Islamic studies with our expert teachers</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('courses') }}" class="btn btn-large btn-accent">Browse Courses</a>
+            <a href="{{ url_for('register') }}" class="btn btn-large btn-primary">Register Now</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

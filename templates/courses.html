@@ -49,6 +49,22 @@
                     </div>
                     
                     <div class="course-info">
+                        {% if course.teacher %}
+                        <div class="info-item teacher-info-item">
+                            <span class="info-label">👨‍🏫 Instructor:</span>
+                            <div class="teacher-mini-profile">
+                                {% if course.teacher.profile_picture %}
+                                <img src="{{ course.teacher.profile_picture }}" alt="{{ course.teacher.full_name }}" class="teacher-mini-pic">
+                                {% endif %}
+                                <div>
+                                    <span class="teacher-name">{{ course.teacher.full_name }}</span>
+                                    {% if course.teacher.experience_years %}
+                                    <span class="teacher-exp">{{ course.teacher.experience_years }}+ years exp.</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="info-item">
                             <span class="info-label">Duration:</span>
                             <span class="info-value">{{ course.duration }}</span>

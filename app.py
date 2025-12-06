@@ -69,6 +69,17 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_teacher = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Teacher profile fields
+    profile_picture = db.Column(db.String(200))
+    bio = db.Column(db.Text)
+    qualifications = db.Column(db.Text)  # Degrees and certifications
+    specializations = db.Column(db.Text)  # Areas of strength
+    experience_years = db.Column(db.Integer)
+    languages = db.Column(db.String(200))
+    ijazah = db.Column(db.String(200))  # Ijazah certificates
+    teaching_style = db.Column(db.Text)
+    
     enrollments = db.relationship('Enrollment', backref='student', lazy=True)
     teaching_courses = db.relationship('Course', backref='teacher', lazy=True)
 
@@ -142,7 +153,8 @@ def teacher_required(f):
 @app.route('/')
 def index():
     courses = Course.query.all()
-    return render_template('index.html', courses=courses)
+    teachers = User.query.filter_by(is_teacher=True).limit(3).all()
+    return render_template('index.html', courses=courses, teachers=teachers)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -354,6 +366,25 @@ def contact():
 def founder():
     return render_template('founder.html')
 
+# Public Teacher Routes
+@app.route('/teachers')
+def teachers():
+    all_teachers = User.query.filter_by(is_teacher=True).all()
+    return render_template('teachers.html', teachers=all_teachers)
+
+@app.route('/teachers/<int:teacher_id>')
+def teacher_public_profile(teacher_id):
+    teacher = User.query.get_or_404(teacher_id)
+    
+    if not teacher.is_teacher:
+        flash('Teacher not found.', 'danger')
+        return redirect(url_for('teachers'))
+    
+    # Get courses taught by this teacher
+    courses = Course.query.filter_by(teacher_id=teacher.id).all()
+    
+    return render_template('teacher_public_profile.html', teacher=teacher, courses=courses)
+
 @app.route('/admin/courses/edit/<int:course_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_course(course_id):
@@ -542,6 +573,62 @@ def send_payment_reminder(enrollment_id):
     return redirect(url_for('admin_reports'))
 
 # Teacher Routes
+@app.route('/teacher/profile', methods=['GET', 'POST'])
+@login_required
+@teacher_required
+def teacher_profile():
+    teacher = User.query.get(session['user_id'])
+    
+    if request.method == 'POST':
+        # Update basic info
+        teacher.full_name = request.form.get('full_name', teacher.full_name)
+        teacher.phone = request.form.get('phone', teacher.phone)
+        teacher.bio = request.form.get('bio', '')
+        teacher.experience_years = int(request.form.get('experience_years', 0)) if request.form.get('experience_years') else None
+        teacher.languages = request.form.get('languages', '')
+        teacher.ijazah = request.form.get('ijazah', '')
+        teacher.teaching_style = request.form.get('teaching_style', '')
+        
+        # Handle qualifications (degrees)
+        qualifications_raw = request.form.get('qualifications', '')
+        teacher.qualifications = '|'.join([line.strip() for line in qualifications_raw.split('\n') if line.strip()])
+        
+        # Handle specializations (areas of strength)
+        specializations_raw = request.form.get('specializations', '')
+        teacher.specializations = '|'.join([line.strip() for line in specializations_raw.split('\n') if line.strip()])
+        
+        # Handle profile picture upload
+        if 'profile_picture' in request.files and request.files['profile_picture'].filename:
+            file = request.files['profile_picture']
+            if allowed_file(file.filename):
+                # Delete old profile picture if exists
+                if teacher.profile_picture and teacher.profile_picture.startswith('/static/uploads/'):
+                    old_file = os.path.join(os.path.dirname(__file__), teacher.profile_picture.lstrip('/'))
+                    if os.path.exists(old_file):
+                        os.remove(old_file)
+                
+                # Save new profile picture
+                filename = secure_filename(file.filename)
+                timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+                filename = f"teacher_{teacher.id}_{timestamp}_{filename}"
+                
+                # Create teachers folder if not exists
+                teachers_folder = os.path.join(app.config['UPLOAD_FOLDER'], '..', 'teachers')
+                os.makedirs(teachers_folder, exist_ok=True)
+                
+                filepath = os.path.join(teachers_folder, filename)
+                file.save(filepath)
+                teacher.profile_picture = f"/static/uploads/teachers/{filename}"
+            else:
+                flash('Invalid file type for profile picture. Please upload PNG, JPG, GIF, SVG, or WEBP.', 'danger')
+                return render_template('teacher_profile.html', teacher=teacher)
+        
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('teacher_profile'))
+    
+    return render_template('teacher_profile.html', teacher=teacher)
+
 @app.route('/teacher/dashboard')
 @login_required
 @teacher_required

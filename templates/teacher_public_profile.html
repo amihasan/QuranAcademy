@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}{{ teacher.full_name }} - Teacher Profile - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="teacher-profile-hero">
+    <div class="container">
+        <div class="profile-hero-content">
+            <div class="profile-hero-avatar">
+                {% if teacher.profile_picture %}
+                    <img src="{{ teacher.profile_picture }}" alt="{{ teacher.full_name }}" class="hero-avatar-img">
+                {% else %}
+                    <div class="hero-avatar-placeholder">
+                        <span>{{ teacher.full_name[0] }}</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="profile-hero-info">
+                <h1>{{ teacher.full_name }}</h1>
+                <div class="profile-meta-row">
+                    {% if teacher.experience_years %}
+                    <span class="meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        {{ teacher.experience_years }}+ years of teaching
+                    </span>
+                    {% endif %}
+                    {% if teacher.languages %}
+                    <span class="meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        {{ teacher.languages }}
+                    </span>
+                    {% endif %}
+                    {% if teacher.ijazah %}
+                    <span class="meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Ijazah Certified
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="teacher-details-section">
+    <div class="container">
+        <div class="teacher-details-grid">
+            <!-- Main Content -->
+            <div class="teacher-main-content">
+                {% if teacher.bio %}
+                <div class="content-card">
+                    <h2>About Me</h2>
+                    <p class="bio-text">{{ teacher.bio }}</p>
+                </div>
+                {% endif %}
+
+                {% if teacher.teaching_style %}
+                <div class="content-card">
+                    <h2>Teaching Style & Methodology</h2>
+                    <p class="teaching-style-text">{{ teacher.teaching_style }}</p>
+                </div>
+                {% endif %}
+
+                {% if teacher.qualifications %}
+                <div class="content-card">
+                    <h2>Qualifications & Degrees</h2>
+                    <ul class="qualifications-list">
+                        {% for qual in teacher.qualifications.split('|') %}
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            {{ qual }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if teacher.specializations %}
+                <div class="content-card">
+                    <h2>Areas of Expertise</h2>
+                    <div class="expertise-grid">
+                        {% for spec in teacher.specializations.split('|') %}
+                        <div class="expertise-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <span>{{ spec }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="teacher-sidebar">
+                {% if courses %}
+                <div class="sidebar-card">
+                    <h3>Courses Taught</h3>
+                    <div class="courses-taught-list">
+                        {% for course in courses %}
+                        <div class="course-taught-item">
+                            {% if course.icon %}
+                            <img src="{{ course.icon }}" alt="{{ course.name }}" class="course-thumb">
+                            {% endif %}
+                            <div class="course-taught-info">
+                                <h4>{{ course.name }}</h4>
+                                <p class="course-duration">{{ course.duration }}</p>
+                                <p class="course-price">${{ "%.2f"|format(course.tuition_fee) }}/month</p>
+                                <a href="{{ url_for('enroll', course_id=course.id) }}" class="btn btn-sm btn-accent">Enroll</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="sidebar-card cta-card">
+                    <h3>Ready to Learn?</h3>
+                    <p>Start your Islamic education journey with {{ teacher.full_name.split()[0] }}</p>
+                    <a href="{{ url_for('courses') }}" class="btn btn-block btn-primary">View All Courses</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-block btn-accent">Register Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

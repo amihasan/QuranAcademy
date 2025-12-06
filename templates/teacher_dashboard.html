@@ -6,9 +6,41 @@
 <section class="dashboard-section">
     <div class="container">
         <div class="dashboard-header">
-            <h1>Teacher Dashboard</h1>
-            <p>Welcome, {{ teacher.full_name }}</p>
+            <div>
+                <h1>Teacher Dashboard</h1>
+                <p>Welcome, {{ teacher.full_name }}</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('teacher_profile') }}" class="btn btn-accent">
+                    ✏️ Edit Profile
+                </a>
+            </div>
         </div>
+
+        <!-- Teacher Profile Summary -->
+        {% if teacher.profile_picture or teacher.bio %}
+        <div class="teacher-profile-summary">
+            <div class="profile-summary-card">
+                {% if teacher.profile_picture %}
+                <div class="profile-pic-small">
+                    <img src="{{ teacher.profile_picture }}" alt="{{ teacher.full_name }}">
+                </div>
+                {% endif %}
+                <div class="profile-summary-info">
+                    <h3>{{ teacher.full_name }}</h3>
+                    {% if teacher.experience_years %}
+                    <p class="profile-meta">🎓 {{ teacher.experience_years }} years of teaching experience</p>
+                    {% endif %}
+                    {% if teacher.languages %}
+                    <p class="profile-meta">🌍 {{ teacher.languages }}</p>
+                    {% endif %}
+                    {% if teacher.bio %}
+                    <p class="profile-bio">{{ teacher.bio[:200] }}{% if teacher.bio|length > 200 %}...{% endif %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <!-- Stats Cards -->
         <div class="stats-grid">

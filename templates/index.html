@@ -90,6 +90,44 @@
     </div>
 </section>
 
+<section class="teachers-preview-section">
+    <div class="container">
+        <h2 class="section-title">Meet Our Expert Teachers</h2>
+        <p class="section-subtitle">Learn from qualified scholars with years of experience</p>
+        
+        {% if teachers %}
+        <div class="teachers-preview-grid">
+            {% for teacher in teachers %}
+            <div class="teacher-preview-card">
+                <div class="teacher-preview-avatar">
+                    {% if teacher.profile_picture %}
+                        <img src="{{ teacher.profile_picture }}" alt="{{ teacher.full_name }}">
+                    {% else %}
+                        <div class="avatar-placeholder-preview">
+                            <span>{{ teacher.full_name[0] }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <h3>{{ teacher.full_name }}</h3>
+                {% if teacher.experience_years %}
+                <p class="teacher-preview-exp">{{ teacher.experience_years }}+ years of experience</p>
+                {% endif %}
+                {% if teacher.specializations %}
+                <p class="teacher-preview-spec">{{ teacher.specializations.split('|')[0] }}</p>
+                {% endif %}
+                <a href="{{ url_for('teacher_public_profile', teacher_id=teacher.id) }}" class="btn btn-sm btn-primary">
+                    View Profile
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center" style="margin-top: 2rem;">
+            <a href="{{ url_for('teachers') }}" class="btn btn-large btn-accent">View All Teachers →</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
 <section class="cta-section">
     <div class="container">
         <div class="cta-content">

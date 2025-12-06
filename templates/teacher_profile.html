@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Teacher Profile</h1>
+            <p>Manage your professional information and credentials</p>
+            <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Profile Picture Section -->
+            <div class="profile-sidebar">
+                <div class="profile-picture-card">
+                    <h3>Profile Picture</h3>
+                    <div class="profile-picture-preview">
+                        {% if teacher.profile_picture %}
+                            <img src="{{ teacher.profile_picture }}" alt="{{ teacher.full_name }}" class="profile-pic-large">
+                        {% else %}
+                            <div class="profile-pic-placeholder">
+                                <span class="placeholder-icon">👤</span>
+                                <p>No profile picture</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <strong>Courses Assigned</strong>
+                            <span class="stat-value">{{ teacher.teaching_courses|length }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong>Member Since</strong>
+                            <span class="stat-value">{{ teacher.created_at.strftime('%B %Y') }}</span>
+                        </div>
+                        {% if teacher.experience_years %}
+                        <div class="stat-item">
+                            <strong>Experience</strong>
+                            <span class="stat-value">{{ teacher.experience_years }} years</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Form Section -->
+            <div class="profile-main">
+                <div class="form-card">
+                    <h2>Edit Profile Information</h2>
+                    <form method="POST" enctype="multipart/form-data" class="admin-form">
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">Basic Information</h3>
+                            
+                            <div class="form-group">
+                                <label for="full_name">Full Name *</label>
+                                <input type="text" id="full_name" name="full_name" class="form-control" 
+                                       value="{{ teacher.full_name }}" required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email">Email (Read-only)</label>
+                                    <input type="email" id="email" class="form-control" 
+                                           value="{{ teacher.email }}" disabled>
+                                    <small class="form-text">Contact admin to change email</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone</label>
+                                    <input type="tel" id="phone" name="phone" class="form-control" 
+                                           value="{{ teacher.phone or '' }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="profile_picture">Upload Profile Picture</label>
+                                <input type="file" id="profile_picture" name="profile_picture" 
+                                       class="form-control" accept=".png,.jpg,.jpeg,.gif,.svg,.webp">
+                                <small class="form-text">Accepted formats: PNG, JPG, GIF, SVG, WEBP (max 2MB)</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bio">Professional Bio</label>
+                                <textarea id="bio" name="bio" class="form-control" rows="4" 
+                                          placeholder="Share your background, teaching philosophy, and what makes you passionate about Islamic education...">{{ teacher.bio or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Professional Credentials -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">Professional Credentials</h3>
+                            
+                            <div class="form-group">
+                                <label for="qualifications">Qualifications & Degrees</label>
+                                <textarea id="qualifications" name="qualifications" class="form-control" rows="5" 
+                                          placeholder="List your degrees, certifications, and academic achievements (one per line)&#10;Example:&#10;Master's in Islamic Studies - Al-Azhar University&#10;Bachelor's in Quranic Sciences - Islamic University of Madinah&#10;Certified Tajweed Instructor">{% if teacher.qualifications %}{{ teacher.qualifications.replace('|', '&#10;') }}{% endif %}</textarea>
+                                <small class="form-text">Enter one qualification per line</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="specializations">Areas of Strength & Specializations</label>
+                                <textarea id="specializations" name="specializations" class="form-control" rows="5" 
+                                          placeholder="List your areas of expertise (one per line)&#10;Example:&#10;Tajweed & Quranic Recitation&#10;Hifz (Quran Memorization)&#10;Tafseer (Quranic Interpretation)&#10;Arabic Grammar & Language">{% if teacher.specializations %}{{ teacher.specializations.replace('|', '&#10;') }}{% endif %}</textarea>
+                                <small class="form-text">Enter one specialization per line</small>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="experience_years">Years of Teaching Experience</label>
+                                    <input type="number" id="experience_years" name="experience_years" 
+                                           class="form-control" min="0" max="50" 
+                                           value="{{ teacher.experience_years or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="languages">Languages Spoken</label>
+                                    <input type="text" id="languages" name="languages" class="form-control" 
+                                           value="{{ teacher.languages or '' }}" 
+                                           placeholder="e.g., Arabic, English, Urdu">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ijazah">Ijazah Certifications</label>
+                                <input type="text" id="ijazah" name="ijazah" class="form-control" 
+                                       value="{{ teacher.ijazah or '' }}" 
+                                       placeholder="e.g., Ijazah in Hafs, Ijazah in Warsh">
+                                <small class="form-text">List your Ijazah certifications if any</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="teaching_style">Teaching Style & Methodology</label>
+                                <textarea id="teaching_style" name="teaching_style" class="form-control" rows="4" 
+                                          placeholder="Describe your teaching approach, methodology, and what students can expect from your classes...">{{ teacher.teaching_style or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-large">
+                                💾 Save Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
