@@ -5,10 +5,14 @@ A beautiful, modern web application for online Quran classes with user authentic
 ## ✨ Features
 
 - **User Authentication**: Secure registration and login system with password hashing
+- **Teacher Management**: Dedicated teacher accounts with course assignments
 - **Course Management**: Four comprehensive programs (Learning Quran, Memorizing Quran, Tajweed, Islamic Studies)
-- **Admin Course Builder**: Admins can add new courses directly from the UI and instantly publish them
+- **Admin Course Builder**: Admins can add new courses directly from the UI and assign teachers
+- **Teacher Dashboard**: Teachers can view assigned courses and student payment matrix
+- **Student Matrix**: Track student enrollments, payments, and due dates by teacher
 - **Enrollment System**: Easy course enrollment with status tracking
 - **Payment Processing**: Integrated payment system with multiple payment methods
+- **Payment Reminders**: Email reminder system for overdue and upcoming payments
 - **User Dashboard**: Track enrollments, progress, and payment status
 - **Responsive Design**: Beautiful, eye-catching interface that works on all devices
 - **Islamic Design**: Carefully crafted UI with Islamic aesthetics and color schemes
@@ -89,26 +93,35 @@ QuranAcademy/
 │   ├── courses.html      # Course listing page
 │   ├── enroll.html       # Course enrollment page
 │   ├── payment.html      # Payment processing page
+│   ├── admin_courses.html      # Admin course management
+│   ├── admin_reports.html      # Admin payment reports
+│   ├── admin_teachers.html     # Admin teacher management
+│   ├── admin_teacher_report.html # Teacher-specific student report
+│   ├── teacher_dashboard.html  # Teacher dashboard with student matrix
+│   ├── edit_course.html  # Edit course page
+│   ├── founder.html      # Founder's message page
 │   ├── about.html        # About us page
 │   └── contact.html      # Contact page
 │
 └── static/               # Static files
     ├── css/
     │   └── style.css     # Main stylesheet with animations
-    └── js/
-        └── main.js       # JavaScript for interactivity
+    ├── js/
+    │   └── main.js       # JavaScript for interactivity
+    └── images/
+        └── logo.png      # Academy logo
 ```
 
 ## 🗄️ Database Schema
 
 ### User Table
-- id, username, email, password_hash, full_name, phone, created_at
+- id, username, email, password_hash, full_name, phone, is_admin, is_teacher, created_at
 
 ### Course Table
-- id, name, description, duration, tuition_fee, icon, features, created_at
+- id, name, description, duration, tuition_fee, icon, features, teacher_id, created_at
 
 ### Enrollment Table
-- id, user_id, course_id, enrollment_date, status, payment_status
+- id, user_id, course_id, enrollment_date, status, payment_status, next_payment_due, last_payment_date
 
 ### Payment Table
 - id, enrollment_id, amount, payment_date, payment_method, transaction_id, status
@@ -156,24 +169,51 @@ QuranAcademy/
 4. **Pay**: Complete payment to activate your course
 5. **Dashboard**: Track your enrollments and progress
 
+### For Teachers:
+
+1. **Login**: Use teacher credentials (username: teacher, password: Teacher@1234)
+2. **View Dashboard**: Access "My Classes" from the navigation menu
+3. **Monitor Students**: View all students enrolled in your courses
+4. **Track Payments**: See payment status and due dates for each student
+5. **Student Matrix**: Access detailed payment information organized by course
+
 ### For Administrators:
 
-The database can be managed through:
-- Direct database access using SQLite browser
-- Python shell for programmatic access
-- Future admin panel (can be added)
+1. **Login**: Use admin credentials (username: admin, password: Admin@1234)
+2. **Manage Courses**: 
+   - Create new courses with course pictures
+   - Edit existing courses
+   - Assign teachers to courses
+   - Delete courses (if no enrollments exist)
+3. **Manage Teachers**:
+   - Add new teacher accounts
+   - View all teachers and their assigned courses
+   - Access teacher-specific student reports
+   - Delete teachers (if no courses assigned)
+4. **Payment Reports**:
+   - View all student enrollments
+   - Monitor payment statuses (paid, due soon, overdue)
+   - Send email payment reminders to students
+   - Track revenue and statistics
+5. **Teacher Reports**:
+   - View student matrix for each teacher
+   - Monitor teacher performance
+   - Access detailed payment information by teacher
 
 ## 🔄 Future Enhancements
 
-- Admin panel for course and user management
+- ✅ Admin panel for course and user management (Completed)
+- ✅ Teacher management system (Completed)
+- ✅ Payment tracking and reminders (Completed)
 - Live class scheduling system
 - Video conferencing integration
 - Progress tracking with assignments
 - Student-teacher messaging system
-- Real payment gateway integration
-- Email notifications
+- Real payment gateway integration (Stripe/PayPal)
 - Certificate generation
 - Multi-language support (Arabic/English)
+- Attendance tracking
+- Performance analytics dashboard
 
 ## 🐛 Troubleshooting
 
@@ -186,9 +226,31 @@ The database can be managed through:
 **Issue**: Templates not loading
 - **Solution**: Ensure the `templates` and `static` folders are in the same directory as `app.py`
 
+**Issue**: Database schema mismatch after updates
+- **Solution**: Delete `instance/quran_academy.db` and restart the server to recreate with new schema
+
+**Issue**: Email reminders not working
+- **Solution**: Configure `.env` file with valid SMTP credentials (see EMAIL_SETUP.md)
+
+## 👥 Default User Accounts
+
+The system creates default accounts for testing:
+
+**Admin Account:**
+- Username: `admin`
+- Password: `Admin@1234`
+- Access: Full system administration
+
+**Teacher Account:**
+- Username: `teacher`
+- Password: `Teacher@1234`
+- Access: Teacher dashboard and student matrix
+
+**Note**: Change these passwords in production!
+
 ## 📧 Support
 
-For questions or issues, contact: info@quranacademy.com
+For questions or issues, contact: info@raindropsacademy.com
 
 ## 📜 License
 

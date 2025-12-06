@@ -25,7 +25,10 @@
                 {% if session.user_id %}
                     {% if session.get('is_admin') %}
                         <li><a href="{{ url_for('admin_courses') }}" class="nav-link">Admin</a></li>
+                        <li><a href="{{ url_for('admin_teachers') }}" class="nav-link">Teachers</a></li>
                         <li><a href="{{ url_for('admin_reports') }}" class="nav-link">Reports</a></li>
+                    {% elif session.get('is_teacher') %}
+                        <li><a href="{{ url_for('teacher_dashboard') }}" class="nav-link">My Classes</a></li>
                     {% endif %}
                     <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
                     <li><a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a></li>

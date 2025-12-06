@@ -1911,3 +1911,312 @@ input[type="file"].form-control {
         grid-template-columns: 1fr;
     }
 }
+
+/* Teacher Dashboard Styles */
+.dashboard-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+    min-height: calc(100vh - 200px);
+}
+
+.dashboard-section-header {
+    margin: 3rem 0 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #2d8659;
+}
+
+.dashboard-section-header h2 {
+    color: #1e5a7d;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.info-card h3 {
+    color: #1e5a7d;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-item {
+    padding: 0.5rem 0;
+}
+
+.info-item strong {
+    color: #2d8659;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.course-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.course-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.course-info {
+    padding: 1.5rem;
+}
+
+.course-info h3 {
+    color: #1e5a7d;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.course-duration, .course-fee {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0.25rem 0;
+}
+
+.enrolled-count {
+    color: #2d8659;
+    font-weight: 600;
+    margin-top: 0.75rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.empty-state p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* Admin Teachers Management */
+.form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.form-card h2 {
+    color: #1e5a7d;
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-table {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.admin-table thead {
+    background: linear-gradient(135deg, #1e5a7d, #2d8659);
+    color: white;
+}
+
+.admin-table th, .admin-table td {
+    padding: 1rem;
+    text-align: left;
+}
+
+.admin-table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.badge-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.badge-warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.badge-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.badge-success {
+    background: #28a745;
+    color: white;
+}
+
+/* Table Container */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    overflow-x: auto;
+}
+
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.reports-table thead {
+    background: linear-gradient(135deg, #1e5a7d, #2d8659);
+    color: white;
+}
+
+.reports-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.reports-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.reports-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.reports-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.status-danger {
+    border-left: 4px solid #dc3545;
+    background-color: #ffe6e6 !important;
+}
+
+.status-warning {
+    border-left: 4px solid #ffc107;
+    background-color: #fff9e6 !important;
+}
+
+.status-success {
+    border-left: 4px solid #28a745;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.stat-info h3 {
+    color: #1e5a7d;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-info p {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0.25rem 0 0;
+}
+
+.stat-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.stat-success {
+    border-left: 4px solid #28a745;
+}
+

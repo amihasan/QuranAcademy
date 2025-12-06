@@ -10,6 +10,7 @@
             <p>Monitor student payments and send reminders for monthly tuition fees.</p>
             <div style="margin-top: 1rem;">
                 <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">← Back to Course Management</a>
+                <a href="{{ url_for('admin_teachers') }}" class="btn btn-accent">👨‍🏫 Manage Teachers</a>
             </div>
         </div>
         
@@ -61,6 +62,7 @@
                         <tr>
                             <th>Student</th>
                             <th>Course</th>
+                            <th>Teacher</th>
                             <th>Monthly Fee</th>
                             <th>Last Payment</th>
                             <th>Next Due Date</th>
@@ -77,6 +79,13 @@
                                 <small>{{ item.user.phone or 'No phone' }}</small>
                             </td>
                             <td>{{ item.course.name }}</td>
+                            <td>
+                                {% if item.course.teacher %}
+                                    {{ item.course.teacher.full_name }}
+                                {% else %}
+                                    <span class="badge badge-secondary">No teacher</span>
+                                {% endif %}
+                            </td>
                             <td class="amount">${{ "%.2f"|format(item.monthly_fee) }}</td>
                             <td>
                                 {% if item.enrollment.last_payment_date %}

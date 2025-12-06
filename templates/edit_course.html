@@ -45,6 +45,18 @@
                         <textarea id="features" name="features" class="form-control" rows="4">{% if course.features %}{{ course.features.replace('|', '
 ') }}{% endif %}</textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="teacher_id">Assign Teacher</label>
+                        <select id="teacher_id" name="teacher_id" class="form-control">
+                            <option value="">-- No Teacher Assigned --</option>
+                            {% for teacher in teachers %}
+                            <option value="{{ teacher.id }}" {% if course.teacher_id == teacher.id %}selected{% endif %}>
+                                {{ teacher.full_name }} ({{ teacher.username }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text">Assign a teacher to this course for student management</small>
+                    </div>
                     <div class="button-group">
                         <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-accent">Update Course</button>

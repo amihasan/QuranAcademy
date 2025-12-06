@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Teachers - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Teacher Management</h1>
+            <p>Add and manage teacher accounts</p>
+        </div>
+
+        <!-- Add Teacher Form -->
+        <div class="form-card">
+            <h2>Add New Teacher</h2>
+            <form method="POST" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="full_name">Full Name *</label>
+                        <input type="text" id="full_name" name="full_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username *</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" name="password" required minlength="6">
+                    <small>Minimum 6 characters</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Teacher</button>
+            </form>
+        </div>
+
+        <!-- Teachers List -->
+        <div class="admin-section-header">
+            <h2>All Teachers</h2>
+        </div>
+
+        {% if teachers %}
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Assigned Courses</th>
+                        <th>Join Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td>{{ teacher.full_name }}</td>
+                        <td>{{ teacher.username }}</td>
+                        <td>{{ teacher.email }}</td>
+                        <td>{{ teacher.phone or 'N/A' }}</td>
+                        <td>
+                            <span class="badge badge-info">
+                                {{ teacher.teaching_courses|length }} course(s)
+                            </span>
+                        </td>
+                        <td>{{ teacher.created_at.strftime('%b %d, %Y') }}</td>
+                        <td class="action-buttons">
+                            <a href="{{ url_for('admin_teacher_report', teacher_id=teacher.id) }}" 
+                               class="btn btn-sm btn-info" title="View Report">
+                                📊 Report
+                            </a>
+                            <form method="POST" action="{{ url_for('delete_teacher', teacher_id=teacher.id) }}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Are you sure you want to delete this teacher?');">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Teacher">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No teachers added yet. Create your first teacher account above.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

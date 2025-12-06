@@ -67,8 +67,10 @@ class User(db.Model):
     full_name = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(20))
     is_admin = db.Column(db.Boolean, default=False)
+    is_teacher = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     enrollments = db.relationship('Enrollment', backref='student', lazy=True)
+    teaching_courses = db.relationship('Course', backref='teacher', lazy=True)
 
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,6 +80,7 @@ class Course(db.Model):
     tuition_fee = db.Column(db.Float, nullable=False)
     icon = db.Column(db.String(50))
     features = db.Column(db.Text)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     enrollments = db.relationship('Enrollment', backref='course', lazy=True)
 
@@ -119,6 +122,18 @@ def admin_required(f):
             user = User.query.get(session['user_id'])
         if not user or not user.is_admin:
             flash('Administrative access required.', 'danger')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def teacher_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        user = None
+        if 'user_id' in session:
+            user = User.query.get(session['user_id'])
+        if not user or not user.is_teacher:
+            flash('Teacher access required.', 'danger')
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -178,8 +193,14 @@ def login():
             session['username'] = user.username
             session['full_name'] = user.full_name
             session['is_admin'] = user.is_admin
+            session['is_teacher'] = user.is_teacher
             flash(f'Welcome back, {user.full_name}!', 'success')
-            return redirect(url_for('dashboard'))
+            
+            # Redirect based on user role
+            if user.is_teacher and not user.is_admin:
+                return redirect(url_for('teacher_dashboard'))
+            else:
+                return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password!', 'danger')
     
@@ -240,7 +261,8 @@ def admin_courses():
             duration=duration,
             tuition_fee=tuition_fee,
             icon=icon,
-            features=features
+            features=features,
+            teacher_id=request.form.get('teacher_id') if request.form.get('teacher_id') else None
         )
         db.session.add(course)
         db.session.commit()
@@ -248,7 +270,8 @@ def admin_courses():
         return redirect(url_for('admin_courses'))
 
     courses = Course.query.order_by(Course.created_at.desc()).all()
-    return render_template('admin_courses.html', courses=courses)
+    teachers = User.query.filter_by(is_teacher=True).all()
+    return render_template('admin_courses.html', courses=courses, teachers=teachers)
 
 @app.route('/enroll/<int:course_id>', methods=['GET', 'POST'])
 @login_required
@@ -365,11 +388,16 @@ def edit_course(course_id):
         features_raw = request.form.get('features', '')
         course.features = '|'.join([line.strip() for line in features_raw.split('\n') if line.strip()])
         
+        # Update teacher assignment
+        teacher_id = request.form.get('teacher_id')
+        course.teacher_id = int(teacher_id) if teacher_id else None
+        
         db.session.commit()
         flash(f'Course "{course.name}" updated successfully!', 'success')
         return redirect(url_for('admin_courses'))
     
-    return render_template('edit_course.html', course=course)
+    teachers = User.query.filter_by(is_teacher=True).all()
+    return render_template('edit_course.html', course=course, teachers=teachers)
 
 @app.route('/admin/courses/delete/<int:course_id>', methods=['POST'])
 @admin_required
@@ -513,6 +541,179 @@ def send_payment_reminder(enrollment_id):
     
     return redirect(url_for('admin_reports'))
 
+# Teacher Routes
+@app.route('/teacher/dashboard')
+@login_required
+@teacher_required
+def teacher_dashboard():
+    teacher = User.query.get(session['user_id'])
+    courses = Course.query.filter_by(teacher_id=teacher.id).all()
+    
+    # Get student matrix for teacher's courses
+    student_data = []
+    for course in courses:
+        enrollments = Enrollment.query.filter_by(course_id=course.id).all()
+        for enrollment in enrollments:
+            student = User.query.get(enrollment.user_id)
+            
+            # Calculate payment status
+            payment_status = 'No payment yet'
+            status_class = 'warning'
+            days_until_due = None
+            
+            if enrollment.next_payment_due:
+                days_until_due = (enrollment.next_payment_due - datetime.utcnow()).days
+                
+                if days_until_due < 0:
+                    payment_status = f'Overdue by {abs(days_until_due)} days'
+                    status_class = 'danger'
+                elif days_until_due == 0:
+                    payment_status = 'Due today'
+                    status_class = 'warning'
+                elif days_until_due <= 7:
+                    payment_status = f'Due in {days_until_due} days'
+                    status_class = 'warning'
+                else:
+                    payment_status = f'Due in {days_until_due} days'
+                    status_class = 'success'
+            
+            student_data.append({
+                'student': student,
+                'course': course,
+                'enrollment': enrollment,
+                'payment_status': payment_status,
+                'status_class': status_class,
+                'days_until_due': days_until_due
+            })
+    
+    return render_template('teacher_dashboard.html', teacher=teacher, courses=courses, student_data=student_data)
+
+# Admin Teacher Management Routes
+@app.route('/admin/teachers', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_teachers():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        full_name = request.form['full_name']
+        phone = request.form.get('phone', '')
+        
+        # Check if user exists
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists!', 'danger')
+            return redirect(url_for('admin_teachers'))
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered!', 'danger')
+            return redirect(url_for('admin_teachers'))
+        
+        # Create new teacher
+        hashed_password = generate_password_hash(password)
+        new_teacher = User(
+            username=username,
+            email=email,
+            password_hash=hashed_password,
+            full_name=full_name,
+            phone=phone,
+            is_teacher=True
+        )
+        
+        db.session.add(new_teacher)
+        db.session.commit()
+        flash(f'Teacher {full_name} added successfully!', 'success')
+        return redirect(url_for('admin_teachers'))
+    
+    teachers = User.query.filter_by(is_teacher=True).all()
+    return render_template('admin_teachers.html', teachers=teachers)
+
+@app.route('/admin/teachers/delete/<int:teacher_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_teacher(teacher_id):
+    teacher = User.query.get_or_404(teacher_id)
+    
+    # Check if teacher has assigned courses
+    assigned_courses = Course.query.filter_by(teacher_id=teacher_id).count()
+    if assigned_courses > 0:
+        flash(f'Cannot delete teacher. {assigned_courses} courses are assigned to this teacher. Please reassign courses first.', 'danger')
+        return redirect(url_for('admin_teachers'))
+    
+    db.session.delete(teacher)
+    db.session.commit()
+    flash(f'Teacher {teacher.full_name} deleted successfully.', 'success')
+    return redirect(url_for('admin_teachers'))
+
+@app.route('/admin/reports/teacher/<int:teacher_id>')
+@login_required
+@admin_required
+def admin_teacher_report(teacher_id):
+    teacher = User.query.get_or_404(teacher_id)
+    
+    if not teacher.is_teacher:
+        flash('User is not a teacher.', 'danger')
+        return redirect(url_for('admin_reports'))
+    
+    courses = Course.query.filter_by(teacher_id=teacher.id).all()
+    
+    # Get student matrix for this teacher's courses
+    student_data = []
+    total_students = 0
+    total_revenue = 0
+    overdue_count = 0
+    
+    for course in courses:
+        enrollments = Enrollment.query.filter_by(course_id=course.id).all()
+        total_students += len(enrollments)
+        
+        for enrollment in enrollments:
+            student = User.query.get(enrollment.user_id)
+            
+            # Calculate payment status
+            payment_status = 'No payment yet'
+            status_class = 'warning'
+            days_until_due = None
+            
+            if enrollment.next_payment_due:
+                days_until_due = (enrollment.next_payment_due - datetime.utcnow()).days
+                
+                if days_until_due < 0:
+                    payment_status = f'Overdue by {abs(days_until_due)} days'
+                    status_class = 'danger'
+                    overdue_count += 1
+                elif days_until_due == 0:
+                    payment_status = 'Due today'
+                    status_class = 'warning'
+                elif days_until_due <= 7:
+                    payment_status = f'Due in {days_until_due} days'
+                    status_class = 'warning'
+                else:
+                    payment_status = f'Due in {days_until_due} days'
+                    status_class = 'success'
+            
+            if enrollment.last_payment_date:
+                total_revenue += course.tuition_fee
+            
+            student_data.append({
+                'student': student,
+                'course': course,
+                'enrollment': enrollment,
+                'payment_status': payment_status,
+                'status_class': status_class,
+                'days_until_due': days_until_due
+            })
+    
+    return render_template('admin_teacher_report.html', 
+                         teacher=teacher, 
+                         courses=courses, 
+                         student_data=student_data,
+                         total_students=total_students,
+                         total_revenue=total_revenue,
+                         overdue_count=overdue_count)
+
+    return redirect(url_for('admin_reports'))
+
 # Initialize database and sample data
 def init_db():
     with app.app_context():
@@ -575,6 +776,20 @@ def init_db():
             db.session.add(admin_user)
             db.session.commit()
             print("Created default admin user (username: admin, password: Admin@1234)")
+        
+        # Create a sample teacher user
+        if not User.query.filter_by(username='teacher').first():
+            teacher_user = User(
+                username='teacher',
+                email='teacher@raindropsacademy.com',
+                password_hash=generate_password_hash('Teacher@1234'),
+                full_name='Sample Teacher',
+                is_teacher=True,
+                phone='+1 (555) 987-6543'
+            )
+            db.session.add(teacher_user)
+            db.session.commit()
+            print("Created sample teacher user (username: teacher, password: Teacher@1234)")
 
 if __name__ == '__main__':
     init_db()

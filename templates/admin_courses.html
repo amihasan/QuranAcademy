@@ -42,6 +42,16 @@
                         <label for="features">Features (one per line)</label>
                         <textarea id="features" name="features" class="form-control" rows="4"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="teacher_id">Assign Teacher (Optional)</label>
+                        <select id="teacher_id" name="teacher_id" class="form-control">
+                            <option value="">-- No Teacher Assigned --</option>
+                            {% for teacher in teachers %}
+                            <option value="{{ teacher.id }}">{{ teacher.full_name }} ({{ teacher.username }})</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text">Assign a teacher to this course for student management</small>
+                    </div>
                     <button type="submit" class="btn btn-block btn-accent">Save Course</button>
                 </form>
             </div>

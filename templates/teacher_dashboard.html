@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard - Raindrops Academy{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Teacher Dashboard</h1>
+            <p>Welcome, {{ teacher.full_name }}</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-info">
+                    <h3>{{ courses|length }}</h3>
+                    <p>My Courses</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🎓</div>
+                <div class="stat-info">
+                    <h3>{{ student_data|length }}</h3>
+                    <p>Total Students</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <h3>{{ student_data|selectattr('status_class', 'equalto', 'danger')|list|length }}</h3>
+                    <p>Overdue Payments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Courses Overview -->
+        <div class="dashboard-section-header">
+            <h2>My Courses</h2>
+        </div>
+
+        {% if courses %}
+        <div class="courses-grid">
+            {% for course in courses %}
+            <div class="course-card">
+                {% if course.icon %}
+                <img src="{{ course.icon }}" alt="{{ course.name }}" class="course-image">
+                {% endif %}
+                <div class="course-info">
+                    <h3>{{ course.name }}</h3>
+                    <p class="course-duration">{{ course.duration }}</p>
+                    <p class="enrolled-count">
+                        {{ course.enrollments|length }} student(s) enrolled
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No courses assigned yet. Please contact the administrator.</p>
+        </div>
+        {% endif %}
+
+        <!-- Student Matrix -->
+        <div class="dashboard-section-header">
+            <h2>Student Payment Matrix</h2>
+        </div>
+
+        {% if student_data %}
+        <div class="table-container">
+            <table class="reports-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Course</th>
+                        <th>Enrollment Date</th>
+                        <th>Last Payment</th>
+                        <th>Next Due Date</th>
+                        <th>Payment Status</th>
+                        <th>Monthly Fee</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in student_data %}
+                    <tr class="status-{{ item.status_class }}">
+                        <td>{{ item.student.full_name }}</td>
+                        <td>{{ item.student.email }}</td>
+                        <td>{{ item.student.phone or 'N/A' }}</td>
+                        <td>{{ item.course.name }}</td>
+                        <td>{{ item.enrollment.enrollment_date.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            {% if item.enrollment.last_payment_date %}
+                                {{ item.enrollment.last_payment_date.strftime('%b %d, %Y') }}
+                            {% else %}
+                                <span class="badge badge-warning">No payment yet</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.enrollment.next_payment_due %}
+                                {{ item.enrollment.next_payment_due.strftime('%b %d, %Y') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ item.status_class }}">
+                                {{ item.payment_status }}
+                            </span>
+                        </td>
+                        <td>${{ "%.2f"|format(item.course.tuition_fee) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No students enrolled in your courses yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
