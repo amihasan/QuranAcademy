@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="dropGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d8659;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e5a7d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e5a7d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d8659;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="white" opacity="0.95"/>
+  
+  <!-- Open Book Base -->
+  <g filter="url(#shadow)">
+    <!-- Left Page -->
+    <path d="M 60 120 Q 60 90, 70 80 L 70 140 Q 65 145, 60 150 Z" 
+          fill="url(#bookGradient)" opacity="0.9"/>
+    <!-- Right Page -->
+    <path d="M 140 120 Q 140 90, 130 80 L 130 140 Q 135 145, 140 150 Z" 
+          fill="url(#bookGradient)" opacity="0.9"/>
+    <!-- Book Spine -->
+    <rect x="98" y="80" width="4" height="70" fill="#1e5a7d" opacity="0.8"/>
+    
+    <!-- Decorative Lines on Pages (representing text) -->
+    <line x1="75" y1="95" x2="95" y2="95" stroke="#1e5a7d" stroke-width="1.5" opacity="0.4"/>
+    <line x1="75" y1="102" x2="92" y2="102" stroke="#1e5a7d" stroke-width="1.5" opacity="0.4"/>
+    <line x1="75" y1="109" x2="95" y2="109" stroke="#1e5a7d" stroke-width="1.5" opacity="0.4"/>
+    <line x1="75" y1="116" x2="88" y2="116" stroke="#1e5a7d" stroke-width="1.5" opacity="0.4"/>
+    
+    <line x1="105" y1="95" x2="125" y2="95" stroke="#2d8659" stroke-width="1.5" opacity="0.4"/>
+    <line x1="108" y1="102" x2="125" y2="102" stroke="#2d8659" stroke-width="1.5" opacity="0.4"/>
+    <line x1="105" y1="109" x2="125" y2="109" stroke="#2d8659" stroke-width="1.5" opacity="0.4"/>
+    <line x1="112" y1="116" x2="125" y2="116" stroke="#2d8659" stroke-width="1.5" opacity="0.4"/>
+  </g>
+  
+  <!-- Water Droplets -->
+  <g filter="url(#shadow)">
+    <!-- Large Center Drop -->
+    <path d="M 100 35 Q 85 50, 85 60 Q 85 72, 100 72 Q 115 72, 115 60 Q 115 50, 100 35 Z" 
+          fill="url(#dropGradient)" opacity="0.95"/>
+    <ellipse cx="95" cy="52" rx="4" ry="6" fill="white" opacity="0.4"/>
+    
+    <!-- Left Drop -->
+    <path d="M 70 45 Q 60 55, 60 62 Q 60 70, 70 70 Q 80 70, 80 62 Q 80 55, 70 45 Z" 
+          fill="url(#dropGradient)" opacity="0.85"/>
+    <ellipse cx="67" cy="56" rx="3" ry="4" fill="white" opacity="0.4"/>
+    
+    <!-- Right Drop -->
+    <path d="M 130 45 Q 120 55, 120 62 Q 120 70, 130 70 Q 140 70, 140 62 Q 140 55, 130 45 Z" 
+          fill="url(#dropGradient)" opacity="0.85"/>
+    <ellipse cx="127" cy="56" rx="3" ry="4" fill="white" opacity="0.4"/>
+    
+    <!-- Small accent drops -->
+    <path d="M 50 65 Q 45 70, 45 74 Q 45 79, 50 79 Q 55 79, 55 74 Q 55 70, 50 65 Z" 
+          fill="url(#dropGradient)" opacity="0.7"/>
+    <path d="M 150 65 Q 145 70, 145 74 Q 145 79, 150 79 Q 155 79, 155 74 Q 155 70, 150 65 Z" 
+          fill="url(#dropGradient)" opacity="0.7"/>
+  </g>
+  
+  <!-- Islamic Star Pattern (decorative element) -->
+  <g opacity="0.15">
+    <path d="M 100 160 L 103 166 L 109 166 L 104 170 L 106 176 L 100 172 L 94 176 L 96 170 L 91 166 L 97 166 Z" 
+          fill="#2d8659"/>
+  </g>
+  
+  <!-- Subtle outer ring -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="url(#dropGradient)" stroke-width="2" opacity="0.3"/>
+</svg>
