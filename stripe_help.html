@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stripe Setup Instructions</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .step { background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #2d8659; }
+        .warning { background: #fff3cd; border-left-color: #ffc107; }
+        code { background: #e9ecef; padding: 2px 6px; border-radius: 4px; }
+        a { color: #2d8659; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        h1 { color: #1e5a7d; }
+        h2 { color: #2d8659; }
+    </style>
+</head>
+<body>
+    <h1>🔑 Get Your Stripe Secret Key</h1>
+    
+    <div class="step warning">
+        <h2>⚠️ Current Issue</h2>
+        <p>Your payment page is working and creating payment intents, but the verification is failing because the <strong>SECRET KEY</strong> is not set correctly in your <code>.env</code> file.</p>
+        <p>You have the public key: <code>pk_live_51OIZMDGpTLDx2Mnr...</code></p>
+        <p>But the secret key shows: <code>sk_live_YOUR_SECRET_KEY_HERE</code> (placeholder)</p>
+    </div>
+
+    <div class="step">
+        <h2>Step 1: Go to Stripe Dashboard</h2>
+        <p>For <strong>LIVE payments</strong> (real money), visit:</p>
+        <p><a href="https://dashboard.stripe.com/apikeys" target="_blank">https://dashboard.stripe.com/apikeys</a></p>
+        <p>Make sure the toggle at the top shows <strong>"Viewing live data"</strong></p>
+    </div>
+
+    <div class="step">
+        <h2>Step 2: Find Your Secret Key</h2>
+        <p>On that page, you'll see:</p>
+        <ul>
+            <li><strong>Publishable key</strong> - starts with <code>pk_live_</code> (you already have this)</li>
+            <li><strong>Secret key</strong> - starts with <code>sk_live_</code> (this is what you need)</li>
+        </ul>
+        <p>Click the <strong>"Reveal live key"</strong> button next to the Secret key</p>
+        <p>Copy the entire key that starts with <code>sk_live_</code></p>
+    </div>
+
+    <div class="step">
+        <h2>Step 3: Update Your .env File</h2>
+        <p>Open: <code>c:\QuranAcademy\.env</code></p>
+        <p>Replace this line:</p>
+        <code>STRIPE_SECRET_KEY=sk_live_YOUR_SECRET_KEY_HERE</code>
+        <p>With your actual key (should look something like):</p>
+        <code>STRIPE_SECRET_KEY=sk_live_XXXXXXXXXXXXXXXXXXXX</code>
+    </div>
+
+    <div class="step">
+        <h2>Step 4: Restart Your Application</h2>
+        <p>After saving the .env file, restart the Flask application.</p>
+    </div>
+
+    <div class="step warning">
+        <h2>🔴 Important: You're Using LIVE Mode</h2>
+        <ul>
+            <li>This will process <strong>REAL payments</strong></li>
+            <li>Real money will be charged to customers</li>
+            <li>Ensure your Stripe account is fully activated</li>
+            <li>Add a bank account to receive payouts</li>
+            <li>Consider testing with TEST keys first (<code>sk_test_</code> and <code>pk_test_</code>)</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h2>Need Help?</h2>
+        <p>If you can't find your secret key or need assistance:</p>
+        <ul>
+            <li><a href="https://support.stripe.com" target="_blank">Stripe Support</a></li>
+            <li><a href="https://stripe.com/docs/keys" target="_blank">API Keys Documentation</a></li>
+        </ul>
+    </div>
+</body>
+</html>

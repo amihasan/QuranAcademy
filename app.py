@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -9,6 +9,7 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import stripe
 
 # Load environment variables from .env file
 load_dotenv()
@@ -28,6 +29,18 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'your-email@gmail.com')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'your-app-password')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@raindropsacademy.com')
+
+# Stripe configuration
+stripe_secret = os.environ.get('STRIPE_SECRET_KEY', '')
+stripe_public = os.environ.get('STRIPE_PUBLIC_KEY', '')
+
+# Only set Stripe key if it's a valid key (not placeholder)
+if stripe_secret and not stripe_secret.endswith('_here') and stripe_secret.startswith('sk_'):
+    stripe.api_key = stripe_secret
+else:
+    stripe.api_key = None  # Will trigger demo mode
+    
+app.config['STRIPE_PUBLIC_KEY'] = stripe_public if (stripe_public and stripe_public.startswith('pk_')) else ''
 
 # Create upload directory if it doesn't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -111,9 +124,11 @@ class Payment(db.Model):
     enrollment_id = db.Column(db.Integer, db.ForeignKey('enrollment.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_date = db.Column(db.DateTime, default=datetime.utcnow)
-    payment_method = db.Column(db.String(50))
-    transaction_id = db.Column(db.String(100))
-    status = db.Column(db.String(20), default='completed')
+    payment_method = db.Column(db.String(50))  # 'stripe', 'cash', 'bank_transfer', etc.
+    transaction_id = db.Column(db.String(100))  # Stripe payment intent ID
+    stripe_payment_intent = db.Column(db.String(200))  # Full Stripe payment intent ID
+    stripe_customer_id = db.Column(db.String(200))  # Stripe customer ID
+    status = db.Column(db.String(20), default='pending')  # pending, completed, failed, refunded
 
 # Login decorator
 def login_required(f):
@@ -229,6 +244,11 @@ def logout():
 def dashboard():
     user = User.query.get(session['user_id'])
     enrollments = Enrollment.query.filter_by(user_id=user.id).all()
+    
+    # Show payment success message if redirected from payment
+    if request.args.get('payment') == 'success':
+        flash('Payment successful! Your course is now active.', 'success')
+    
     return render_template('dashboard.html', user=user, enrollments=enrollments)
 
 @app.route('/courses')
@@ -322,21 +342,34 @@ def enroll(course_id):
 @login_required
 def payment(enrollment_id):
     enrollment = Enrollment.query.get_or_404(enrollment_id)
+    user = User.query.get(session['user_id'])
     
     # Verify ownership
     if enrollment.user_id != session['user_id']:
         flash('Unauthorized access!', 'danger')
         return redirect(url_for('dashboard'))
     
-    if request.method == 'POST':
-        payment_method = request.form['payment_method']
-        
-        # Create payment record
+    # Check if already paid
+    if enrollment.payment_status == 'paid':
+        flash('This enrollment has already been paid for.', 'info')
+        return redirect(url_for('dashboard'))
+    
+    # Check if Stripe is configured with valid keys
+    stripe_configured = (
+        stripe.api_key and 
+        app.config['STRIPE_PUBLIC_KEY'] and
+        app.config['STRIPE_PUBLIC_KEY'].startswith('pk_') and
+        not app.config['STRIPE_PUBLIC_KEY'].endswith('_here')
+    )
+    
+    # Handle demo mode POST for non-Stripe payments
+    if request.method == 'POST' and not stripe_configured:
+        # Create payment record for demo
         new_payment = Payment(
             enrollment_id=enrollment_id,
             amount=enrollment.course.tuition_fee,
-            payment_method=payment_method,
-            transaction_id=f'TXN{datetime.utcnow().strftime("%Y%m%d%H%M%S")}{enrollment_id}',
+            payment_method='demo',
+            transaction_id=f'DEMO{datetime.utcnow().strftime("%Y%m%d%H%M%S")}{enrollment_id}',
             status='completed'
         )
         
@@ -349,10 +382,130 @@ def payment(enrollment_id):
         db.session.add(new_payment)
         db.session.commit()
         
-        flash('Payment successful! Your course is now active.', 'success')
+        flash('Demo payment successful! Your course is now active.', 'success')
         return redirect(url_for('dashboard'))
     
-    return render_template('payment.html', enrollment=enrollment)
+    return render_template('payment.html', 
+                         enrollment=enrollment,
+                         stripe_public_key=app.config['STRIPE_PUBLIC_KEY'],
+                         stripe_configured=stripe_configured)
+
+@app.route('/create-payment-intent/<int:enrollment_id>', methods=['POST'])
+@login_required
+def create_payment_intent(enrollment_id):
+    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    user = User.query.get(session['user_id'])
+    
+    # Verify ownership
+    if enrollment.user_id != session['user_id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    # Check if Stripe is configured
+    if not stripe.api_key or not stripe.api_key.startswith('sk_'):
+        return jsonify({'error': 'Stripe is not configured. Using demo mode instead.'}), 400
+    
+    try:
+        # Create or retrieve Stripe customer
+        if not user.email:
+            return jsonify({'error': 'Email required for payment. Please update your profile.'}), 400
+        
+        # Create Stripe customer if doesn't exist
+        customer = stripe.Customer.create(
+            email=user.email,
+            name=user.full_name,
+            metadata={'user_id': user.id}
+        )
+        
+        # Create payment intent
+        amount = int(enrollment.course.tuition_fee * 100)  # Convert to cents
+        
+        intent = stripe.PaymentIntent.create(
+            amount=amount,
+            currency='usd',
+            customer=customer.id,
+            metadata={
+                'enrollment_id': enrollment_id,
+                'user_id': user.id,
+                'course_id': enrollment.course_id,
+                'course_name': enrollment.course.name
+            },
+            description=f'Payment for {enrollment.course.name}'
+        )
+        
+        return jsonify({
+            'clientSecret': intent.client_secret,
+            'amount': enrollment.course.tuition_fee
+        })
+    
+    except stripe.error.AuthenticationError as e:
+        return jsonify({'error': 'Stripe authentication failed. Please check your API keys.'}), 400
+    except stripe.error.StripeError as e:
+        return jsonify({'error': f'Stripe error: {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Payment initialization failed: {str(e)}'}), 400
+
+@app.route('/payment-success/<int:enrollment_id>', methods=['POST'])
+@login_required
+def payment_success(enrollment_id):
+    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    
+    # Verify ownership
+    if enrollment.user_id != session['user_id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    data = request.get_json()
+    payment_intent_id = data.get('payment_intent_id')
+    
+    if not payment_intent_id:
+        return jsonify({'error': 'No payment intent ID provided'}), 400
+    
+    try:
+        # Check if Stripe is configured
+        if not stripe.api_key or not stripe.api_key.startswith('sk_'):
+            # Stripe not configured - this shouldn't happen if we got here
+            return jsonify({'error': 'Stripe is not properly configured'}), 400
+        
+        # Verify payment with Stripe
+        intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+        
+        if intent.status == 'succeeded':
+            # Create payment record
+            new_payment = Payment(
+                enrollment_id=enrollment_id,
+                amount=enrollment.course.tuition_fee,
+                payment_method='stripe',
+                transaction_id=payment_intent_id,
+                stripe_payment_intent=payment_intent_id,
+                stripe_customer_id=intent.customer,
+                status='completed'
+            )
+            
+            # Update enrollment status
+            enrollment.payment_status = 'paid'
+            enrollment.status = 'active'
+            enrollment.last_payment_date = datetime.utcnow()
+            enrollment.next_payment_due = datetime.utcnow() + timedelta(days=30)
+            
+            db.session.add(new_payment)
+            db.session.commit()
+            
+            return jsonify({'success': True, 'message': 'Payment successful!'})
+        else:
+            return jsonify({'error': f'Payment status is {intent.status}, not succeeded'}), 400
+    
+    except stripe.error.InvalidRequestError as e:
+        # Payment intent not found or invalid
+        return jsonify({'error': f'Invalid payment: {str(e)}'}), 400
+    except stripe.error.AuthenticationError as e:
+        return jsonify({'error': 'Stripe authentication failed. Check your secret key.'}), 400
+    except stripe.error.StripeError as e:
+        return jsonify({'error': f'Stripe error: {str(e)}'}), 400
+    except Exception as e:
+        # Log the full error for debugging
+        print(f"Payment success error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Payment verification failed: {str(e)}'}), 400
 
 @app.route('/about')
 def about():
